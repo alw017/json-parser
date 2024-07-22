@@ -1,0 +1,3 @@
+/home/awang/hocon-proj/json-parser/build/CMakeFiles/parser.dir
+/home/awang/hocon-proj/json-parser/build/CMakeFiles/edit_cache.dir
+/home/awang/hocon-proj/json-parser/build/CMakeFiles/rebuild_cache.dir
