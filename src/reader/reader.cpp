@@ -1,17 +1,10 @@
 #include "reader.hpp"
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <sstream>
-#include <lexer.hpp>
-
 
 using namespace std;
 
 ConfigFile::ConfigFile(char * filename) {
     string filename_str = string(filename);
     ifstream conf_file(filename_str);
-    lexer = new Lexer();
     if (!conf_file.is_open()) {
         cerr << "ERROR: File " << filename_str << " failed to open." << endl;
         exit(1);
@@ -27,5 +20,14 @@ ConfigFile::~ConfigFile() {}
 void ConfigFile::runFile() {
     cout << file << endl;
     cout << "Lexer output:" << endl;
-    lexer->run("test");
+    string mystring = "test_string";
+    std::vector<Token> tokens = vector<Token>();
+    Lexer lexer = Lexer(file, tokens);
+    if (!lexer.run()) {
+        std::cerr << "Error occurred. Terminating program." << endl;
+        exit(1);
+    }
+    for (Token token : tokens) {
+        cout << token.str() << endl;
+    }
 }

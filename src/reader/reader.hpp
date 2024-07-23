@@ -1,14 +1,14 @@
-#ifndef READER_H
-#define READER_H
+#pragma once
 
 #include <iostream>
 #include <fstream>
-#include "lexer.hpp"
+#include <string>
+#include <sstream>
+#include <lexer.hpp>
 
 class ConfigFile {
     private:
         std::string file;
-        Lexer * lexer;
 
     public:
         ConfigFile(char * filename);
@@ -16,6 +16,4 @@ class ConfigFile {
         
         void runFile(); // void for now but later it will return a map of relevant key/value pairs.
 };
-    
 
-#endif

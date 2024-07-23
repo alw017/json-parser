@@ -11,9 +11,11 @@ project(JSONParser VERSION 1.0
 	LANGUAGES CXX)
 
 add_subdirectory(src)
+add_executable(main main.cpp)
 
-add_executable(tester main.cpp)
+target_link_libraries(reader lexer)
+target_link_libraries(main reader)
+target_link_libraries(parser lexer)
+target_link_libraries(main parser)
 
-target_link_libraries(tester PUBLIC reader)
-target_link_libraries(reader PUBLIC lexer)
-target_link_libraries(tester PUBLIC parser)
+

@@ -1,10 +1,6 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-
-#include <lexer.hpp>
-#include <parser.hpp>
+//#include <parser.hpp>
 #include <reader.hpp>
+#include <lexer.hpp>
 
 using namespace std;
 
@@ -15,6 +11,7 @@ int main(int argc, char * argv[]) {
         cerr << "Expected: tester <scriptName>" << endl;
         exit(1);
     } else if (argc == 2){
+        //lexer::run_lexer("test");
         ConfigFile conf_file(argv[1]);
         conf_file.runFile();
     } else {
