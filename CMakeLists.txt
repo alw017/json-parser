@@ -10,4 +10,10 @@ project(JSONParser VERSION 1.0
 	DESCRIPTION "JSON Parser Prototype"
 	LANGUAGES CXX)
 
-add_executable(parser main.cpp)
+add_subdirectory(src)
+
+add_executable(tester main.cpp)
+
+target_link_libraries(tester PUBLIC reader)
+target_link_libraries(reader PUBLIC lexer)
+target_link_libraries(tester PUBLIC parser)
