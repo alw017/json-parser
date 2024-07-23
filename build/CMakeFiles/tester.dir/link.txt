@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/tester.dir/main.cpp.o -o tester  src/libreader.a src/libparser.a src/liblexer.a

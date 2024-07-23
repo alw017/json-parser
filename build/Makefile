@@ -57,10 +57,10 @@ RM = /st/home/awang/.local/lib/python3.10/site-packages/cmake/data/bin/cmake -E 
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/awang/hocon-proj/json-parser
+CMAKE_SOURCE_DIR = /home/awang/json-parser
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/awang/hocon-proj/json-parser/build
+CMAKE_BINARY_DIR = /home/awang/json-parser/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/awang/hocon-proj/json-parser/build/CMakeFiles /home/awang/hocon-proj/json-parser/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/awang/json-parser/build/CMakeFiles /home/awang/json-parser/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/awang/hocon-proj/json-parser/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/awang/json-parser/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -117,6 +117,32 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named tester
+
+# Build rule for target.
+tester: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tester
+.PHONY : tester
+
+# fast build rule for target.
+tester/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tester.dir/build.make CMakeFiles/tester.dir/build
+.PHONY : tester/fast
+
+#=============================================================================
+# Target rules for targets named lexer
+
+# Build rule for target.
+lexer: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lexer
+.PHONY : lexer
+
+# fast build rule for target.
+lexer/fast:
+	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/lexer.dir/build.make src/CMakeFiles/lexer.dir/build
+.PHONY : lexer/fast
+
+#=============================================================================
 # Target rules for targets named parser
 
 # Build rule for target.
@@ -126,15 +152,28 @@ parser: cmake_check_build_system
 
 # fast build rule for target.
 parser/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/build
+	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/parser.dir/build.make src/CMakeFiles/parser.dir/build
 .PHONY : parser/fast
+
+#=============================================================================
+# Target rules for targets named reader
+
+# Build rule for target.
+reader: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 reader
+.PHONY : reader
+
+# fast build rule for target.
+reader/fast:
+	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/reader.dir/build.make src/CMakeFiles/reader.dir/build
+.PHONY : reader/fast
 
 main.o: main.cpp.o
 .PHONY : main.o
 
 # target to build an object file
 main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/main.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tester.dir/build.make CMakeFiles/tester.dir/main.cpp.o
 .PHONY : main.cpp.o
 
 main.i: main.cpp.i
@@ -142,7 +181,7 @@ main.i: main.cpp.i
 
 # target to preprocess a source file
 main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/main.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tester.dir/build.make CMakeFiles/tester.dir/main.cpp.i
 .PHONY : main.cpp.i
 
 main.s: main.cpp.s
@@ -150,7 +189,7 @@ main.s: main.cpp.s
 
 # target to generate assembly for a file
 main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/main.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tester.dir/build.make CMakeFiles/tester.dir/main.cpp.s
 .PHONY : main.cpp.s
 
 # Help Target
@@ -161,7 +200,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... lexer"
 	@echo "... parser"
+	@echo "... reader"
+	@echo "... tester"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
