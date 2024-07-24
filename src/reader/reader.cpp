@@ -1,4 +1,5 @@
 #include "reader.hpp"
+#include <parser.hpp>
 
 using namespace std;
 
@@ -30,4 +31,7 @@ void ConfigFile::runFile() {
     for (Token token : tokens) {
         cout << token.str() << endl;
     }
+    Parser parser = Parser(tokens);
+    ASTObject obj = parser.parseTokens();
+    std::cout << "complete" << std::endl;
 }

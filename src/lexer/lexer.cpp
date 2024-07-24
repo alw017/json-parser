@@ -74,7 +74,7 @@ void Lexer::number() {
         while(isDigit(peek())) advance();
         isDouble = true;
     }
-    if (isDouble) {
+    if (true/*isDouble*/) {
             addToken(NUMBER, std::strtod(source.substr(start,current-start).c_str(), nullptr));
     } else {
             addToken(NUMBER, std::stoi(source.substr(start, current-start)));
@@ -140,7 +140,7 @@ bool Lexer::run() {
         scanToken();
     }
 
-    tokens.push_back(Token(ENDFILE, "", "", line));
+    tokens.push_back(Token(ENDFILE, "EOF", "", line));
     return true;
 }
 

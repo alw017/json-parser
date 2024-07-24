@@ -14,8 +14,9 @@ add_subdirectory(src)
 add_executable(main main.cpp)
 
 target_link_libraries(reader lexer)
-target_link_libraries(main reader)
 target_link_libraries(parser lexer)
+target_link_libraries(reader parser)
+target_link_libraries(main reader)
 target_link_libraries(main parser)
 
 

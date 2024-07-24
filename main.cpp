@@ -1,4 +1,4 @@
-//#include <parser.hpp>
+#include <parser.hpp>
 #include <reader.hpp>
 #include <lexer.hpp>
 
@@ -14,6 +14,14 @@ int main(int argc, char * argv[]) {
         //lexer::run_lexer("test");
         ConfigFile conf_file(argv[1]);
         conf_file.runFile();
+        vector<ASTValue> values = vector<ASTValue>();
+
+        values.push_back(ASTValue(0.4));
+        values.push_back(ASTValue(4));
+        values.push_back(ASTValue(true));
+        values.push_back(ASTValue(ASTArray()));
+        values.push_back(ASTValue(ASTObject()));
+        std::cout << parse_util::parseValues(values) << endl;
     } else {
         cout << "ran tester" << endl;
     }
