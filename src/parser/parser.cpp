@@ -48,7 +48,7 @@ std::string parse_util::parseValues(std::vector<ASTValue> values) {
 }
 
 std::string parse_util::string(ASTMapObject * obj) {
-    std::string output = " { ";
+    std::string output = "\n { ";
     for (auto v : obj->members){
         output = output + v.first + ":" + std::visit(stringifyASTNode, v.second->value) + ", ";
     }
@@ -61,6 +61,10 @@ std::string parse_util::array(ASTArray * arr) {
         output = output + std::visit(stringifyASTNode, v->value) + ", ";
     }
     return output + "]";
+}
+
+std::string parse_util::to_string(ASTValue * val) {
+    return std::visit(stringifyASTNode, val->value);
 }
 
 ASTMember::~ASTMember() {
@@ -95,15 +99,22 @@ ASTMapObject::~ASTMapObject() {
     }
 }
 
-ASTMapObject * Parser::parseTokens() {
-    advance();
-    ASTMapObject * output = mapObject();
+bool Parser::parseTokens() {
+    ASTMapObject * output;
+    if (match(LEFT_BRACE)) {
+        output = mapObject();
+    } else {
+        error(peek().line, "expected {, got " + peek().lexeme);
+        return false;
+    }
     //std::cout << "end: " << peek().lexeme << std::endl;
     if (peek().type != ENDFILE){
         error(peek().line, "expected EOF, got " + peek().lexeme);
-        return new ASTMapObject();
+        return false;
+    } else {
+        root = output;
+        return true;
     }
-    return output;
 }
 
 

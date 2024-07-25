@@ -55,6 +55,7 @@ namespace parse_util {
     std::string parseValues(std::vector<ASTValue> values);
     std::string string(ASTMapObject * obj);
     std::string array(ASTArray * arr);
+    std::string to_string(ASTValue * val);
 }
 
 class Parser {
@@ -75,7 +76,8 @@ class Parser {
         std::string string();
         ASTValue * value();
     public: 
-        ASTMapObject * parseTokens();
+        bool parseTokens();
+        ASTMapObject * root;
         bool atEnd();
         bool valid = true;
         bool scanExpr();
