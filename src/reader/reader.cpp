@@ -19,7 +19,7 @@ ConfigFile::ConfigFile(char * filename) {
 ConfigFile::~ConfigFile() {}
 
 void ConfigFile::runFile() {
-    cout << file << endl;
+    //cout << file << endl;
     cout << "Lexer output:" << endl;
     string mystring = "test_string";
     std::vector<Token> tokens = vector<Token>();
@@ -29,9 +29,13 @@ void ConfigFile::runFile() {
         exit(1);
     }
     for (Token token : tokens) {
-        cout << token.str() << endl;
+      //cout << token.lexeme << "";
     }
     Parser parser = Parser(tokens);
-    ASTObject obj = parser.parseTokens();
+    ASTMapObject * obj = parser.parseTokens();
     std::cout << "complete" << std::endl;
+
+    std::cout << parse_util::string(obj) << endl;
+
+    delete obj;
 }

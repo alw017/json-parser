@@ -14,32 +14,47 @@ struct ASTArray {
     std::vector<ASTValue*> arr;
     ASTArray() : arr(std::vector<ASTValue*>()) {}
     ASTArray(std::vector<ASTValue*> arr) : arr(arr) {}
+    ~ASTArray();
 };
 
 struct ASTMember {
     std::string key;
     ASTValue* value;
     ASTMember(std::string key, ASTValue* value) : key(key), value(value) {} 
+    ASTMember(): key(""), value(nullptr){}
+    ~ASTMember();
 };
 
 struct ASTObject {
-    std::vector<ASTMember> members;
-    ASTObject() : members(std::vector<ASTMember>()) {}
-    ASTObject(std::vector<ASTMember> members) : members(members) {}
+    std::vector<ASTMember*> members;
+    ASTObject() : members(std::vector<ASTMember*>()) {}
+    ASTObject(std::vector<ASTMember*> members) : members(members) {}
+    ~ASTObject();
+};
+
+struct ASTMapObject {
+    std::unordered_map<std::string, ASTValue *> members;
+    ASTMapObject() : members(std::unordered_map<std::string, ASTValue *>()) {}
+    ASTMapObject(std::unordered_map<std::string, ASTValue *> members) : members(members) {}
+    ~ASTMapObject();
 };
 
 struct ASTValue {
-    std::variant<int, double, bool, ASTObject, ASTArray, std::string> value;
+    std::variant<int, double, bool, ASTObject *, ASTArray *, std::string, ASTMapObject *> value;
     ASTValue(int val) : value(val) {}
     ASTValue(double val) : value(val) {}
     ASTValue(bool val) : value(val) {}
-    ASTValue(ASTObject val) : value(val) {}
-    ASTValue(ASTArray val) : value(val) {}
+    ASTValue(ASTObject * val) : value(val) {}
+    ASTValue(ASTMapObject * val) : value(val) {}
+    ASTValue(ASTArray * val) : value(val) {}
     ASTValue(std::string val) : value(val) {}
+    ~ASTValue();
 };
 
 namespace parse_util {
     std::string parseValues(std::vector<ASTValue> values);
+    std::string string(ASTMapObject * obj);
+    std::string array(ASTArray * arr);
 }
 
 class Parser {
@@ -49,21 +64,25 @@ class Parser {
         int line;
         int length;
         const std::vector<Token> tokens;
-        ASTObject object();
-        ASTMember member();
-        ASTArray array();
+        ASTMapObject * mapObject();
+        ASTObject * object();
+        ASTMember * member();
+        std::pair<std::string, ASTValue *> mapMember();
+        ASTArray * array();
         double number();
         bool boolean();
         int nullvalue();
         std::string string();
         ASTValue * value();
     public: 
-        ASTObject parseTokens();
+        ASTMapObject * parseTokens();
         bool atEnd();
+        bool valid = true;
         bool scanExpr();
         void error(int line, std::string message);
         void report(int line, std::string where, std::string message);
         bool match(std::vector<TokenType> types);
+        bool match(TokenType type);
         bool check(TokenType type);
         Token advance();
         Token peek();

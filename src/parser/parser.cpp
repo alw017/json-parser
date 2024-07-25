@@ -7,15 +7,37 @@ struct Overload : Ts ... {
 template<class... Ts> Overload(Ts...) -> Overload<Ts...>;
 
 auto TypeOfASTValue = Overload {                                     
-        [](double) { return "double"; },
-        [](int) { return "int"; },
-        [](ASTArray& arr) { return "Array"; },
-        [](ASTObject& obj) { return "Object"; },
-        [](bool) { return "bool"; },
-        [](std::string) {return "string";},
-        [](auto) { return "unknown type"; },
-    };
+    [](double) { return "double"; },
+    [](int) { return "int"; },
+    [](ASTArray& arr) { return "Array"; },
+    [](ASTObject& obj) { return "Object"; },
+    [](bool) { return "bool"; },
+    [](std::string) {return "string";},
+    [](auto) { return "unknown type"; },
+};
 
+auto stringifyASTNode = Overload {
+    [](double d) { return std::to_string(d); },
+    [](int i) { return std::to_string(i); },
+    [](ASTArray * arr) { 
+        return parse_util::array(arr); 
+    },
+    [](ASTMapObject * obj) { 
+        return parse_util::string(obj); 
+    },
+    [](ASTObject * ) { 
+        return std::string("object");
+        },
+    [](bool b) { 
+        return b ? std::string("true") : std::string("false"); 
+        },
+    [](std::string str) {
+        return str;
+        },
+    [](auto) { 
+        return std::string("unknown type"); 
+        },
+};
 
 std::string parse_util::parseValues(std::vector<ASTValue> values) {
     std::string output = "";
@@ -25,10 +47,65 @@ std::string parse_util::parseValues(std::vector<ASTValue> values) {
     return output;
 }
 
-ASTObject Parser::parseTokens() {
-    advance();
-    return object();
+std::string parse_util::string(ASTMapObject * obj) {
+    std::string output = " { ";
+    for (auto v : obj->members){
+        output = output + v.first + ":" + std::visit(stringifyASTNode, v.second->value) + ", ";
+    }
+    return output + " } ";
 }
+
+std::string parse_util::array(ASTArray * arr) {
+    std::string output = "[";
+    for (auto v : arr->arr){
+        output = output + std::visit(stringifyASTNode, v->value) + ", ";
+    }
+    return output + "]";
+}
+
+ASTMember::~ASTMember() {
+    delete value;
+}
+
+ASTArray::~ASTArray() {
+    for (ASTValue * v : arr) {
+        delete v;
+    }
+}
+
+ASTObject::~ASTObject() {
+    for (auto m : members) {
+        delete m;
+    }
+}
+
+ASTValue::~ASTValue() {
+    if (std::holds_alternative<ASTObject *>(value)) {
+        delete std::get<ASTObject*>(value);
+    } else if (std::holds_alternative<ASTArray *>(value)) {
+        delete std::get<ASTArray*>(value);
+    } else if (std::holds_alternative<ASTMapObject *>(value)) {
+        delete std::get<ASTMapObject*>(value);
+    }
+}
+
+ASTMapObject::~ASTMapObject() {
+    for (std::pair<std::string, ASTValue *> p : members) {
+        delete p.second;
+    }
+}
+
+ASTMapObject * Parser::parseTokens() {
+    advance();
+    ASTMapObject * output = mapObject();
+    //std::cout << "end: " << peek().lexeme << std::endl;
+    if (peek().type != ENDFILE){
+        error(peek().line, "expected EOF, got " + peek().lexeme);
+        return new ASTMapObject();
+    }
+    return output;
+}
+
 
 bool Parser::atEnd() {
     return peek().type == ENDFILE;
@@ -40,6 +117,14 @@ bool Parser::match(std::vector<TokenType> types) {
             advance();
             return true;
         }
+    }
+    return false;
+}
+
+bool Parser::match(TokenType type) {
+    if (check(type)) {
+        advance();
+        return true;
     }
     return false;
 }
@@ -58,50 +143,94 @@ Token Parser::peek() {
     return tokens[current];
 }
 
-ASTObject Parser::object() { //TODO Error Checking.
-    std::vector<ASTMember> members = std::vector<ASTMember>();
-    if (peek().type == RIGHT_BRACE) {
-        return ASTObject();
-    } else {
-        members.push_back(member());
-        while (check(COMMA)) {
-            advance();
-            members.push_back(member());
-        }
-        advance();
-        return ASTObject(members);
+Token Parser::previous() {
+    if(current > 1) return tokens[current - 1];
+    else {
+        return tokens[current];
     }
 }
 
-ASTMember Parser::member() {
+ASTObject* Parser::object() { //TODO Error Checking.
+    std::vector<ASTMember*> members = std::vector<ASTMember*>();
+    if (match(RIGHT_BRACE)) {
+        //std::cout << advance().lexeme << " | end object";
+        return new ASTObject();
+    } else { // error check here for strings later.
+        members.push_back(member());
+        while (match(COMMA)) {
+            members.push_back(member());
+        }
+        if (match(RIGHT_BRACE)) return new ASTObject(members);
+        else {
+            error(peek().line, "expected }, got " + peek().lexeme);
+        }
+        return new ASTObject(members);
+    }
+}
+
+ASTMapObject * Parser::mapObject() { //TODO Error Checking.
+    auto members = std::unordered_map<std::string, ASTValue *>();
+    if (match(RIGHT_BRACE)) {
+        return new ASTMapObject();
+    } else {
+        members.insert(mapMember());
+        while (match(COMMA)) {
+            members.insert(mapMember());
+        }
+        if (match(RIGHT_BRACE)) return new ASTMapObject(members);
+        else {
+            error(peek().line, "expected }, got " + peek().lexeme);
+        }
+        return new ASTMapObject();
+    }
+}
+
+ASTMember* Parser::member() {
     if (check(STRING)) {
         Token keyToken = advance();
         std::string key = std::get<std::string>(keyToken.literal);
-        advance();
-        return ASTMember(key, value());
+        advance(); // consume separator.
+        return new ASTMember(key, value());
     } else {
-        error(peek().line, "Expected string, got " + peek().type);
+        error(peek().line, "Expected string, got " + peek().lexeme);
     }
+    return new ASTMember();
 }
 
-ASTArray Parser::array() {
-    if (peek().type == RIGHT_BRACKET) {
-        advance(); // consume right bracket.
-        return ASTArray();
+std::pair<std::string, ASTValue*> Parser::mapMember() {
+    if (check(STRING)) {
+        Token keyToken = advance();
+        std::string key = std::get<std::string>(keyToken.literal);
+        if (!match(COLON)) {
+            error(peek().line, "Expected colon, got " + peek().lexeme);
+        } // consume separator.
+        return std::make_pair(key, value());
+    } else {
+        error(peek().line, "Expected string, got " + peek().lexeme);
+    }
+    return std::make_pair("", new ASTValue(0));
+}
+
+ASTArray * Parser::array() {
+    if (match(RIGHT_BRACKET)) {
+        return new ASTArray();
     } else {
         std::vector<ASTValue*> values = std::vector<ASTValue*>();
         values.push_back(value());
-        while (check(COMMA)) {
-            advance(); // consume comma
+        while (match(COMMA)) {
             values.push_back(value());
         }
-        advance(); // consume right bracket.
-        return ASTArray(values);
+        if (match(RIGHT_BRACKET)) return new ASTArray(values);
+        else {
+            error(peek().line, "expected ], got " + peek().lexeme);
+        }
+        return new ASTArray();
     }
 }
 
 ASTValue * Parser::value() {
     Token t = advance();
+    
     switch (t.type) {
         case NUMBER:
             return new ASTValue(std::get<double>(t.literal));
@@ -114,11 +243,12 @@ ASTValue * Parser::value() {
         case NULLVALUE:
             return new ASTValue(0);
         case LEFT_BRACE: // {}
-            return new ASTValue(object());
+            return new ASTValue(mapObject());
         case LEFT_BRACKET: // []
             return new ASTValue(array());
         default:
             error(t.line, "Unexpected symbol " + t.lexeme);
+            return new ASTValue(0);
             break;
     }
 } 
@@ -126,6 +256,7 @@ ASTValue * Parser::value() {
 
 void Parser::error(int line, std::string message) {
     report(line, "", message);
+    valid = false;
     // add error recovery here.
 }
 
