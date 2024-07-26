@@ -63,10 +63,6 @@ ConfigFile::ConfigFile(char * filename) {
     }
 }
 
-ConfigFile::~ConfigFile() {
-    delete obj_tree;
-}
-
 void ConfigFile::runFile() {
     //cout << file << endl;
     std::vector<Token> tokens = vector<Token>();
@@ -75,12 +71,15 @@ void ConfigFile::runFile() {
         std::cerr << "Error occurred. Terminating program." << endl;
         exit(1);
     }
+    std::cout << "lexer finished." << std::endl;
     Parser parser = Parser(tokens);
     if (parser.parseTokens()) {
             //std::cout << std::to_string(parser.valid) << std::endl;
-        ASTValue * val = getByPath(parser.root, "meta.view");
+        ASTValue * val = getByPath(parser.root, "testval");
         if (val != nullptr) std::cout << parse_util::to_string(val) << std::endl;
         //std::cout << parse_util::string(parser.root) << endl;
+    } else {
+        std::cerr << "Error occurred during parse. Terminating Program." << std::endl;
     };
 
 }

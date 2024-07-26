@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <variant>
+#include <sstream>
 #include "token.hpp"
 
 class Lexer {
@@ -34,5 +35,6 @@ class Lexer {
         void number();
         bool isDigit(char c);
         bool isAlpha(char c);
+        bool isHex(char c);
         void keyword();
 };

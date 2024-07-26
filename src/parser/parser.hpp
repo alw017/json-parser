@@ -52,7 +52,7 @@ struct ASTValue {
 };
 
 namespace parse_util {
-    std::string parseValues(std::vector<ASTValue> values);
+    std::string parseValues(std::vector<ASTValue> values); // remove later. debug function
     std::string string(ASTMapObject * obj);
     std::string array(ASTArray * arr);
     std::string to_string(ASTValue * val);
@@ -76,10 +76,10 @@ class Parser {
         std::string string();
         ASTValue * value();
     public: 
-        bool parseTokens();
         ASTMapObject * root;
-        bool atEnd();
         bool valid = true;
+        bool parseTokens();
+        bool atEnd();
         bool scanExpr();
         void error(int line, std::string message);
         void report(int line, std::string where, std::string message);
@@ -90,5 +90,6 @@ class Parser {
         Token peek();
         Token previous();
         Parser(std::vector<Token> tokens) : tokens(tokens), length(tokens.size()) {}
+        ~Parser();
 };
 

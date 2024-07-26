@@ -13,7 +13,7 @@ class ConfigFile {
         ASTMapObject * obj_tree;
     public:
         ConfigFile(char * filename);
-        ~ConfigFile();
+        //~ConfigFile();
 
         ASTValue * getByPath(ASTMapObject * root, std::string path);
         

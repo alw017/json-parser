@@ -40,23 +40,72 @@ char Lexer::peek() {
 }
 
 void Lexer::string() {
+    std::stringstream ss{""};
     while (peek() != '"' && !atEnd()) {
-        if (peek() == '\n') line++;
-        advance();
+        //std::cout << peek() << " ";
+        if (peek() == '\\') {
+            switch (peekNext()) {
+                case '"': 
+                    ss << '\"'; advance(); advance(); break;
+                case '\\':
+                    ss << '\\'; advance(); advance(); break;
+                case '/':
+                    ss << '/'; advance(); advance(); break;
+                case 'b':
+                    ss << '\b'; advance(); advance(); break;
+                case 'f':
+                    ss << '\f'; advance(); advance(); break;
+                case 'n':
+                    ss << '\n'; advance(); advance(); break;
+                case 't':
+                    ss << '\t'; advance(); advance(); break;
+                case 'r':
+                    ss << '\r'; advance(); advance(); break;
+                case 'u': // 
+                    advance(); 
+                    advance();
+                    for(int i = 0; i < 4; i++) {
+                        if (isHex(peek())) {
+                            advance();
+                        } else {
+                            error(line, "invalid hex escape");
+                            break;
+                        }
+                    }
+                    error(line, "utf-16 characters will be ignored");
+                    break;
+                default:
+                    std::string s(1, peek());
+                    std::string s1(1, peekNext());
+                    advance(); // consume the erroneous escape.
+                    error(line, "bad escape on " + s + s1);
+                    break;
+            }
+        } else {
+            ss << advance();
+        };
     }
+
+    //std::cout << "resulting string: " << ss.str() << std::endl;
 
     if (atEnd()) {
         error(line, "Unterminated string");
         return;
     }
 
-    advance();
-    std::string value = source.substr(start + 1, current - 2 - start);
-    addToken(STRING, value);
+    advance(); // consume right quote
+    //std::string value = source.substr(start + 1, current - 2 - start);
+    addToken(STRING, ss.str());
 }
 
 bool Lexer::isDigit(char c) {
     return c >= '0' && c <= '9';
+}
+
+bool Lexer::isHex(char c) {
+    return isDigit(c) || 
+        (c >= 'a' && c <= 'f') ||
+        (c >= 'A' && c <= 'F'); 
 }
 
 void Lexer::number() {

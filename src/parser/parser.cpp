@@ -99,6 +99,10 @@ ASTMapObject::~ASTMapObject() {
     }
 }
 
+Parser::~Parser() {
+    delete root;
+}
+
 bool Parser::parseTokens() {
     ASTMapObject * output;
     if (match(LEFT_BRACE)) {
@@ -113,10 +117,9 @@ bool Parser::parseTokens() {
         return false;
     } else {
         root = output;
-        return true;
+        return valid;
     }
 }
-
 
 bool Parser::atEnd() {
     return peek().type == ENDFILE;

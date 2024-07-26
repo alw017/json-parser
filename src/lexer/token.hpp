@@ -2,7 +2,7 @@
 
 enum TokenType {
     LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACE, RIGHT_BRACE, // bracket = [] brace = {}
-    COMMA, COLON,
+    COMMA, COLON, WHITESPACE,
 
     STRING, NUMBER,
 
